@@ -90,11 +90,12 @@ class Tenant(db.Model, SerializerMixin):
     
     @validates('age')
     def validate_age(self, key, age):
+        print(type(age))
         if not age:
             raise ValueError("Tenant must have an age.")
-        elif age < 18:
+        elif int(age) < 18:
             raise ValueError("Tenant too young.")
-        elif age > 60:
+        elif int(age) > 60:
             raise ValueError("Tenant too old.")
         return age
     

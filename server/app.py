@@ -32,7 +32,7 @@ class Apartments(Resource):
     def get(self):      
         response_dict_list = []
         for apartment in Apartment.query.all(): 
-            response_dict_list.append(apartment.to_dict(only=('id', 'number', 'leases',)))
+            response_dict_list.append(apartment.to_dict(only=('id', 'number',)))
         if response_dict_list != []:
             response = make_response(jsonify(response_dict_list), 200)
             return response
@@ -49,7 +49,8 @@ class Apartments(Resource):
             db.session.commit()
         except Exception as e:
             return make_response({"errors": [e.__str__()]}, 422)
-        response = make_response(jsonify(new_apartment.to_dict()), 201) 
+        response_dict = new_apartment.to_dict(only=('id', 'number',))
+        response = make_response(jsonify(response_dict), 201) 
         return response 
     
 api.add_resource(Apartments, '/apartments')
@@ -58,7 +59,7 @@ class ApartmentsById(Resource):
     def get(self, id):      
         apartment = Apartment.query.filter(Apartment.id == id).first()
         if apartment:
-            response_dict = apartment.to_dict()
+            response_dict = apartment.to_dict(only=('id', 'number',))
             response = make_response(jsonify(response_dict, 200))
             return response
         return make_response(jsonify({"error": "Apartment Record not found"}), 404)
@@ -73,7 +74,7 @@ class ApartmentsById(Resource):
                 db.session.commit()                                   
             except Exception as e:
                 return make_response({"errors": [e.__str__()]}, 422)
-            response_dict = apartment.to_dict()
+            response_dict = apartment.to_dict(only=('id', 'number',))
             response = make_response(jsonify(response_dict), 201)
             return response 
         return make_response(jsonify({"error": "Apartment Record not found"}), 404)
@@ -93,7 +94,7 @@ class Tenants(Resource):
     def get(self):     
         response_dict_list = []
         for tenant in Tenant.query.all():
-            response_dict_list.append(tenant.to_dict())
+            response_dict_list.append(tenant.to_dict(only=('id', 'name', 'age',)))
         if response_dict_list != []:
             response = make_response(jsonify(response_dict_list), 200)
             return response
@@ -120,7 +121,7 @@ class TenantsById(Resource):
     def get(self, id):   
         tenant = Tenant.query.filter(Tenant.id == id).first()
         if tenant:
-            response_dict = tenant.to_dict()
+            response_dict = tenant.to_dict(only=('id', 'name', 'age',))
             response = make_response(jsonify(response_dict, 200))
             return response
         return make_response(jsonify({"error": "Tenant Record not found"}), 404)
@@ -155,7 +156,7 @@ class Leases(Resource):
     def get(self):
         response_dict_list = []
         for lease in Lease.query.all():
-            response_dict_list.append(lease.to_dict())
+            response_dict_list.append(lease.to_dict(only=('id', 'rent', 'apartment_id', 'tenant_id')))
         if response_dict_list != []:
             response = make_response(jsonify(response_dict_list), 200)
             return response
@@ -179,11 +180,11 @@ class Leases(Resource):
 
 api.add_resource(Leases, '/leases')
 
-class ClassnameById(Resource):
+class LeaseById(Resource):
     def get(self, id):    
         lease = Lease.query.filter(Lease.id == id).first()
         if lease:
-            response_dict = lease.to_dict()
+            response_dict = lease.to_dict(only=('id', 'rent', 'apartment_id', 'tenant_id'))
             response = make_response(jsonify(response_dict, 200))
             return response
         return make_response(jsonify({"error": "Lease Record not found"}), 404)
@@ -212,7 +213,7 @@ class ClassnameById(Resource):
             return make_response(response_dict, 200)
         return make_response(jsonify({"error": "Lease Record not found"}), 404)
 
-api.add_resource(ClassnameById, '/leases/<int:id>')
+api.add_resource(LeaseById, '/leases/<int:id>')
 
 if __name__ == '__main__':
     app.run( port = 3000, debug = True )
